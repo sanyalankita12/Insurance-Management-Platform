@@ -8,6 +8,8 @@ function Customers() {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [email, setEmail] = useState('');
+  const [viewedPolicies, setViewedPolicies] = useState(null);
+  const [viewedCustomerName, setViewedCustomerName] = useState('');
 
   const fetchCustomers = async () => {
     try {
@@ -38,6 +40,7 @@ function Customers() {
       setAddress('');
       setEmail('');
       fetchCustomers();
+      alert('Customer added successfully!');
     } catch (error) {
       console.log(error);
       alert('Failed to add customer');
@@ -48,6 +51,17 @@ function Customers() {
     try {
       await axios.delete(`http://localhost:5000/api/customers/${id}`);
       fetchCustomers();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleViewPolicies = async (customer) => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/policies');
+      const customerPolicies = res.data.filter((p) => p.customerId === customer.id);
+      setViewedPolicies(customerPolicies);
+      setViewedCustomerName(customer.name);
     } catch (error) {
       console.log(error);
     }
@@ -123,7 +137,13 @@ function Customers() {
                 <td className="p-3">{c.phone}</td>
                 <td className="p-3">{c.address}</td>
                 <td className="p-3">{c.email}</td>
-                <td className="p-3">
+                <td className="p-3 space-x-2">
+                  <button
+                    onClick={() => handleViewPolicies(c)}
+                    className="text-blue-400 hover:underline"
+                  >
+                    View Policies
+                  </button>
                   <button
                     onClick={() => handleDelete(c.id)}
                     className="text-red-400 hover:underline"
@@ -136,6 +156,47 @@ function Customers() {
           </tbody>
         </table>
       </div>
+
+      {viewedPolicies && (
+        <div className="max-w-4xl mx-auto mt-8 bg-slate-800 rounded-lg p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-white text-xl font-bold">
+              Policies for {viewedCustomerName}
+            </h2>
+            <button
+              onClick={() => setViewedPolicies(null)}
+              className="text-gray-400 hover:text-white"
+            >
+              Close
+            </button>
+          </div>
+
+          {viewedPolicies.length === 0 ? (
+            <p className="text-gray-400">No policies found for this customer.</p>
+          ) : (
+            <table className="w-full text-left text-white">
+              <thead className="bg-slate-700">
+                <tr>
+                  <th className="p-3">Type</th>
+                  <th className="p-3">Policy No.</th>
+                  <th className="p-3">Premium</th>
+                  <th className="p-3">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {viewedPolicies.map((p) => (
+                  <tr key={p.id} className="border-t border-slate-600">
+                    <td className="p-3">{p.policyType}</td>
+                    <td className="p-3">{p.policyNumber}</td>
+                    <td className="p-3">{p.premiumAmount}</td>
+                    <td className="p-3 capitalize">{p.status}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -19,6 +19,7 @@ model User{
   password String
   role String
   createdAt DateTime @default(now())
+
 }
 
 model Customer {
@@ -29,4 +30,18 @@ model Customer {
   address   String
   email     String   @unique
   createdAt DateTime @default(now())
+  policies  Policy[]
+}
+
+model Policy {
+  id            Int      @id @default(autoincrement())
+  customerId    Int
+  customer      Customer @relation(fields: [customerId], references: [id])
+  policyType    String
+  policyNumber  String   @unique
+  premiumAmount Float
+  startDate     DateTime
+  endDate       DateTime
+  status        String
+  createdAt     DateTime @default(now())
 }

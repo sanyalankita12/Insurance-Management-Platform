@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Customers from './pages/Customers.jsx';
 import Policies from './pages/Policies.jsx';
+import Premiums from './pages/Premiums.jsx';
 
 function App() {
     return (
@@ -13,6 +14,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/customers" element={<Customers />} />
             <Route path="/policies" element={<Policies />} />
+            <Route path="/premiums" element={<Premiums />} />
         </Routes>
     );
 }

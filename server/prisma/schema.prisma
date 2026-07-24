@@ -45,6 +45,7 @@ model Policy {
   status        String
   createdAt     DateTime @default(now())
   premium       Premium[]
+  claims         Claim[]
 }
 
 model Premium {
@@ -54,4 +55,14 @@ model Premium {
   paymentDate   DateTime
   amount        Float
   paymentStatus String
+}
+
+model Claim {
+  id              Int      @id @default(autoincrement())
+  policyId        Int
+  policy          Policy   @relation(fields: [policyId], references: [id])
+  claimAmount     Float
+  reason          String
+  status          String
+  submissionDate  DateTime @default(now())
 }

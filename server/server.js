@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import router from './routes/authRoutes.js';
 import policyRoutes from './routes/policyRoutes.js';
 import premiumRoutes from './routes/premiumRoutes.js';
+import claimRoutes from './routes/claimRoutes.js';
 
 dotenv.config()
 
@@ -16,6 +17,7 @@ app.use('/api/auth',router);
 app.use('/api/customers', customerRoutes);
 app.use('/api/policies', policyRoutes);
 app.use('/api/premiums', premiumRoutes);
+app.use('/api/claims', claimRoutes);
 
 const PORT = process.env.PORT || 5000;
 

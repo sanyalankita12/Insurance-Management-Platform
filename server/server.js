@@ -7,6 +7,7 @@ import policyRoutes from './routes/policyRoutes.js';
 import premiumRoutes from './routes/premiumRoutes.js';
 import claimRoutes from './routes/claimRoutes.js';
 import documentRoutes from './routes/documentRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
 
 dotenv.config()
 
@@ -20,6 +21,7 @@ app.use('/api/policies', policyRoutes);
 app.use('/api/premiums', premiumRoutes);
 app.use('/api/claims', claimRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/reports', reportRoutes);
 
 const PORT = process.env.PORT || 5000;
 

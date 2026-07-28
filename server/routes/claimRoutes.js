@@ -26,40 +26,28 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
+    const { search = '', page = 1, limit = 5 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const where = {
+      status: { contains: search, mode: 'insensitive' },
+    };
+
     const claims = await prisma.claim.findMany({
+      where,
       include: { policy: { include: { customer: true } } },
+      skip,
+      take: parseInt(limit),
     });
-    res.json(claims);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
-router.get('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const claim = await prisma.claim.findUnique({
-      where: { id: parseInt(id) },
-      include: { policy: { include: { customer: true } } },
-    });
-    if (!claim) {
-      return res.status(404).json({ error: 'Claim not found' });
-    }
-    res.json(claim);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+    const total = await prisma.claim.count({ where });
 
-router.put('/:id/status', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-    const updatedClaim = await prisma.claim.update({
-      where: { id: parseInt(id) },
-      data: { status },
+    res.json({
+      data: claims,
+      total,
+      page: parseInt(page),
+      totalPages: Math.ceil(total / parseInt(limit)),
     });
-    res.json(updatedClaim);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -10,11 +10,17 @@ function Customers() {
   const [email, setEmail] = useState('');
   const [viewedPolicies, setViewedPolicies] = useState(null);
   const [viewedCustomerName, setViewedCustomerName] = useState('');
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchCustomers = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/customers');
-      setCustomers(res.data);
+      const res = await axios.get(
+        `http://localhost:5000/api/customers?search=${search}&page=${page}&limit=5`
+      );
+      setCustomers(res.data.data);
+      setTotalPages(res.data.totalPages);
     } catch (error) {
       console.log(error);
     }
@@ -22,7 +28,7 @@ function Customers() {
 
   useEffect(() => {
     fetchCustomers();
-  }, []);
+  }, [search, page]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -117,6 +123,19 @@ function Customers() {
         </button>
       </form>
 
+      <div className="max-w-4xl mx-auto mb-4">
+        <input
+          type="text"
+          placeholder="Search by name or email..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          className="w-full bg-slate-700 text-white placeholder-gray-400 p-3 rounded-lg border border-slate-600 focus:outline-none focus:border-blue-400"
+        />
+      </div>
+
       <div className="max-w-4xl mx-auto overflow-x-auto">
         <table className="w-full text-left text-white bg-slate-800 rounded-lg overflow-hidden">
           <thead className="bg-slate-700">
@@ -155,6 +174,26 @@ function Customers() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="max-w-4xl mx-auto flex justify-center gap-4 mt-4">
+        <button
+          onClick={() => setPage((p) => Math.max(p - 1, 1))}
+          disabled={page === 1}
+          className="bg-slate-700 text-white px-4 py-2 rounded-lg disabled:opacity-40"
+        >
+          Previous
+        </button>
+        <span className="text-white flex items-center">
+          Page {page} of {totalPages}
+        </span>
+        <button
+          onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+          disabled={page === totalPages}
+          className="bg-slate-700 text-white px-4 py-2 rounded-lg disabled:opacity-40"
+        >
+          Next
+        </button>
       </div>
 
       {viewedPolicies && (

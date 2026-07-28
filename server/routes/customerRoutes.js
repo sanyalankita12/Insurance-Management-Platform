@@ -29,8 +29,30 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const customers = await prisma.customer.findMany();
-    res.json(customers);
+    const { search = '', page = 1, limit = 5 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const where = {
+      OR: [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+      ],
+    };
+
+    const customers = await prisma.customer.findMany({
+      where,
+      skip,
+      take: parseInt(limit),
+    });
+
+    const total = await prisma.customer.count({ where });
+
+    res.json({
+      data: customers,
+      total,
+      page: parseInt(page),
+      totalPages: Math.ceil(total / parseInt(limit)),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

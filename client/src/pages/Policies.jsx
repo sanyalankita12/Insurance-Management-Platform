@@ -12,11 +12,17 @@ function Policies() {
   const [status, setStatus] = useState('active');
   const [showTable, setShowTable] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchPolicies = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/policies');
-      setPolicies(res.data);
+      const res = await axios.get(
+        `http://localhost:5000/api/policies?search=${search}&page=${page}&limit=5`
+      );
+      setPolicies(res.data.data);
+      setTotalPages(res.data.totalPages);
     } catch (error) {
       console.log(error);
     }
@@ -24,7 +30,7 @@ function Policies() {
 
   useEffect(() => {
     fetchPolicies();
-  }, []);
+  }, [search, page]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -136,6 +142,19 @@ function Policies() {
         </button>
       </form>
 
+      <div className="max-w-5xl mx-auto mb-4">
+        <input
+          type="text"
+          placeholder="Search by policy type or number..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+          className="w-full bg-slate-700 text-white placeholder-gray-400 p-3 rounded-lg border border-slate-600 focus:outline-none focus:border-blue-400"
+        />
+      </div>
+
       <div className="max-w-5xl mx-auto mb-4 text-center">
         <button
           onClick={() => setShowTable(!showTable)}
@@ -146,56 +165,78 @@ function Policies() {
       </div>
 
       {showTable && (
-        <div className="max-w-5xl mx-auto overflow-x-auto">
-          <table className="w-full text-left text-white bg-slate-800 rounded-lg overflow-hidden">
-            <thead className="bg-slate-700">
-              <tr>
-                <th className="p-3">Customer</th>
-                <th className="p-3">Type</th>
-                <th className="p-3">Policy No.</th>
-                <th className="p-3">Premium</th>
-                <th className="p-3">Start</th>
-                <th className="p-3">End</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {policies.map((p) => (
-                <tr key={p.id} className="border-t border-slate-600">
-                  <td className="p-3">
-                    <button
-                      onClick={() => setSelectedCustomer(p.customer)}
-                      className="text-blue-400 hover:underline"
-                    >
-                      {p.customer.name}
-                    </button>
-                  </td>
-                  <td className="p-3">{p.policyType}</td>
-                  <td className="p-3">{p.policyNumber}</td>
-                  <td className="p-3">{p.premiumAmount}</td>
-                  <td className="p-3">{new Date(p.startDate).toLocaleDateString()}</td>
-                  <td className="p-3">{new Date(p.endDate).toLocaleDateString()}</td>
-                  <td className="p-3 capitalize">{p.status}</td>
-                  <td className="p-3 space-x-2">
-                    <button
-                      onClick={() => handleCancel(p.id)}
-                      className="text-yellow-400 hover:underline"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={() => handleDelete(p.id)}
-                      className="text-red-400 hover:underline"
-                    >
-                      Delete
-                    </button>
-                  </td>
+        <>
+          <div className="max-w-5xl mx-auto overflow-x-auto">
+            <table className="w-full text-left text-white bg-slate-800 rounded-lg overflow-hidden">
+              <thead className="bg-slate-700">
+                <tr>
+                  <th className="p-3">Customer</th>
+                  <th className="p-3">Type</th>
+                  <th className="p-3">Policy No.</th>
+                  <th className="p-3">Premium</th>
+                  <th className="p-3">Start</th>
+                  <th className="p-3">End</th>
+                  <th className="p-3">Status</th>
+                  <th className="p-3">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {policies.map((p) => (
+                  <tr key={p.id} className="border-t border-slate-600">
+                    <td className="p-3">
+                      <button
+                        onClick={() => setSelectedCustomer(p.customer)}
+                        className="text-blue-400 hover:underline"
+                      >
+                        {p.customer.name}
+                      </button>
+                    </td>
+                    <td className="p-3">{p.policyType}</td>
+                    <td className="p-3">{p.policyNumber}</td>
+                    <td className="p-3">{p.premiumAmount}</td>
+                    <td className="p-3">{new Date(p.startDate).toLocaleDateString()}</td>
+                    <td className="p-3">{new Date(p.endDate).toLocaleDateString()}</td>
+                    <td className="p-3 capitalize">{p.status}</td>
+                    <td className="p-3 space-x-2">
+                      <button
+                        onClick={() => handleCancel(p.id)}
+                        className="text-yellow-400 hover:underline"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => handleDelete(p.id)}
+                        className="text-red-400 hover:underline"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="max-w-5xl mx-auto flex justify-center gap-4 mt-4">
+            <button
+              onClick={() => setPage((p) => Math.max(p - 1, 1))}
+              disabled={page === 1}
+              className="bg-slate-700 text-white px-4 py-2 rounded-lg disabled:opacity-40"
+            >
+              Previous
+            </button>
+            <span className="text-white flex items-center">
+              Page {page} of {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+              disabled={page === totalPages}
+              className="bg-slate-700 text-white px-4 py-2 rounded-lg disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
+        </>
       )}
 
       {selectedCustomer && (

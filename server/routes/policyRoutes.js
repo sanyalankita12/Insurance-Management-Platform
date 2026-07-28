@@ -38,17 +38,33 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    const { id } = req.params;
-    const policy = await prisma.policy.findUnique({
-      where: { id: parseInt(id) },
+    const { search = '', page = 1, limit = 5 } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const where = {
+      OR: [
+        { policyType: { contains: search, mode: 'insensitive' } },
+        { policyNumber: { contains: search, mode: 'insensitive' } },
+      ],
+    };
+
+    const policies = await prisma.policy.findMany({
+      where,
       include: { customer: true },
+      skip,
+      take: parseInt(limit),
     });
-    if (!policy) {
-      return res.status(404).json({ error: 'Policy not found' });
-    }
-    res.json(policy);
+
+    const total = await prisma.policy.count({ where });
+
+    res.json({
+      data: policies,
+      total,
+      page: parseInt(page),
+      totalPages: Math.ceil(total / parseInt(limit)),
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

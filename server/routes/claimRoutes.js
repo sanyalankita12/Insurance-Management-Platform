@@ -2,12 +2,13 @@ import 'dotenv/config';
 import express from 'express';
 import { PrismaClient } from '../generated/prisma/index.js';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { verifyToken, authorizeRoles } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
   try {
     const { policyId, claimAmount, reason, status } = req.body;
     const newClaim = await prisma.claim.create({
@@ -24,14 +25,12 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   try {
     const { search = '', page = 1, limit = 5 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const where = {
-      status: { contains: search, mode: 'insensitive' },
-    };
+    const where = { status: { contains: search, mode: 'insensitive' } };
 
     const claims = await prisma.claim.findMany({
       where,
@@ -39,7 +38,6 @@ router.get('/', async (req, res) => {
       skip,
       take: parseInt(limit),
     });
-
     const total = await prisma.claim.count({ where });
 
     res.json({
@@ -53,12 +51,24 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.put('/:id/status', verifyToken, authorizeRoles('admin', 'agent'), async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.claim.delete({
+    const { status } = req.body;
+    const updatedClaim = await prisma.claim.update({
       where: { id: parseInt(id) },
+      data: { status },
     });
+    res.json(updatedClaim);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.delete('/:id', verifyToken, authorizeRoles('admin', 'agent'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.claim.delete({ where: { id: parseInt(id) } });
     res.json({ message: 'Claim deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });

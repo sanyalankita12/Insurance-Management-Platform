@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api.js';
 
 function Premiums() {
   const [premiums, setPremiums] = useState([]);
@@ -10,7 +10,7 @@ function Premiums() {
 
   const fetchPremiums = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/premiums');
+      const res = await api.get('/premiums');
       setPremiums(res.data);
     } catch (error) {
       console.log(error);
@@ -24,12 +24,7 @@ function Premiums() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/premiums', {
-        policyId,
-        paymentDate,
-        amount,
-        paymentStatus,
-      });
+      await api.post('/premiums', { policyId, paymentDate, amount, paymentStatus });
       setPolicyId('');
       setPaymentDate('');
       setAmount('');
@@ -44,7 +39,7 @@ function Premiums() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/premiums/${id}`);
+      await api.delete(`/premiums/${id}`);
       fetchPremiums();
     } catch (error) {
       console.log(error);

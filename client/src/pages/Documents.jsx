@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api.js';
 
 function Documents() {
   const [documents, setDocuments] = useState([]);
@@ -8,7 +8,7 @@ function Documents() {
 
   const fetchDocuments = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/documents');
+      const res = await api.get('/documents');
       setDocuments(res.data);
     } catch (error) {
       console.log(error);
@@ -26,7 +26,7 @@ function Documents() {
       formData.append('customerId', customerId);
       formData.append('file', file);
 
-      await axios.post('http://localhost:5000/api/documents', formData, {
+      await api.post('/documents', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -46,7 +46,7 @@ function Documents() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/documents/${id}`);
+      await api.delete(`/documents/${id}`);
       fetchDocuments();
     } catch (error) {
       console.log(error);

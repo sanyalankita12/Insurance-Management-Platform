@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../api.js';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const greetings = {
@@ -28,12 +28,10 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', {
-        email,
-        password,
-      });
-      console.log(res.data);
+      const res = await api.post('/auth/login', { email, password });
+      localStorage.setItem('token', res.data.token);
       alert('Login successful!');
+      navigate('/dashboard');
     } catch (error) {
       console.log(error);
       alert('Login failed');

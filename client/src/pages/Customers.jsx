@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api.js';
 
 function Customers() {
   const [customers, setCustomers] = useState([]);
@@ -16,9 +16,7 @@ function Customers() {
 
   const fetchCustomers = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/customers?search=${search}&page=${page}&limit=5`
-      );
+      const res = await api.get(`/customers?search=${search}&page=${page}&limit=5`);
       setCustomers(res.data.data);
       setTotalPages(res.data.totalPages);
     } catch (error) {
@@ -33,13 +31,7 @@ function Customers() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/customers', {
-        name,
-        dob,
-        phone,
-        address,
-        email,
-      });
+      await api.post('/customers', { name, dob, phone, address, email });
       setName('');
       setDob('');
       setPhone('');
@@ -55,7 +47,7 @@ function Customers() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/customers/${id}`);
+      await api.delete(`/customers/${id}`);
       fetchCustomers();
     } catch (error) {
       console.log(error);
@@ -64,8 +56,8 @@ function Customers() {
 
   const handleViewPolicies = async (customer) => {
     try {
-      const res = await axios.get('http://localhost:5000/api/policies');
-      const customerPolicies = res.data.filter((p) => p.customerId === customer.id);
+      const res = await api.get('/policies');
+      const customerPolicies = res.data.data.filter((p) => p.customerId === customer.id);
       setViewedPolicies(customerPolicies);
       setViewedCustomerName(customer.name);
     } catch (error) {

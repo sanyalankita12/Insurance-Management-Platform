@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -18,7 +18,7 @@ function Reports() {
 
   const fetchSummary = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/reports/summary');
+      const res = await api.get('/reports/summary');
       setSummary(res.data);
     } catch (error) {
       console.log(error);

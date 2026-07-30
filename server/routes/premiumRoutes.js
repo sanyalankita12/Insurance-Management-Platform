@@ -2,12 +2,13 @@ import 'dotenv/config';
 import express from 'express';
 import { PrismaClient } from '../generated/prisma/index.js';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { verifyToken, authorizeRoles } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-router.post('/', async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
   try {
     const { policyId, paymentDate, amount, paymentStatus } = req.body;
     const newPremium = await prisma.premium.create({
@@ -24,7 +25,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   try {
     const premiums = await prisma.premium.findMany({
       include: { policy: { include: { customer: true } } },
@@ -35,19 +36,17 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.get('/policy/:policyId', async (req, res) => {
+router.get('/policy/:policyId', verifyToken, async (req, res) => {
   try {
     const { policyId } = req.params;
-    const premiums = await prisma.premium.findMany({
-      where: { policyId: parseInt(policyId) },
-    });
+    const premiums = await prisma.premium.findMany({ where: { policyId: parseInt(policyId) } });
     res.json(premiums);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', verifyToken, authorizeRoles('admin', 'agent'), async (req, res) => {
   try {
     const { id } = req.params;
     const { paymentStatus } = req.body;
@@ -61,12 +60,10 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyToken, authorizeRoles('admin'), async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.premium.delete({
-      where: { id: parseInt(id) },
-    });
+    await prisma.premium.delete({ where: { id: parseInt(id) } });
     res.json({ message: 'Premium record deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });

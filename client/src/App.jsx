@@ -8,11 +8,13 @@ import Premiums from './pages/Premiums.jsx';
 import Claims from './pages/Claims.jsx';
 import Documents from './pages/Documents.jsx';
 import Reports from './pages/Reports.jsx';
+import Dashboard from './pages/Dashboard.jsx';
 
 function App() {
     return (
         <Routes>
             <Route path="/" element={<RoleSelect />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/login/:role" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/customers" element={<Customers />} />
@@ -21,6 +23,7 @@ function App() {
             <Route path="/claims" element={<Claims />} />
             <Route path="/documents" element={<Documents />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
     );
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api.js';
 
 function Policies() {
   const [policies, setPolicies] = useState([]);
@@ -18,9 +18,7 @@ function Policies() {
 
   const fetchPolicies = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/policies?search=${search}&page=${page}&limit=5`
-      );
+      const res = await api.get(`/policies?search=${search}&page=${page}&limit=5`);
       setPolicies(res.data.data);
       setTotalPages(res.data.totalPages);
     } catch (error) {
@@ -35,7 +33,7 @@ function Policies() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/policies', {
+      await api.post('/policies', {
         customerId,
         policyType,
         policyNumber,
@@ -61,7 +59,7 @@ function Policies() {
 
   const handleCancel = async (id) => {
     try {
-      await axios.put(`http://localhost:5000/api/policies/${id}/cancel`);
+      await api.put(`/policies/${id}/cancel`);
       fetchPolicies();
     } catch (error) {
       console.log(error);
@@ -70,7 +68,7 @@ function Policies() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/policies/${id}`);
+      await api.delete(`/policies/${id}`);
       fetchPolicies();
     } catch (error) {
       console.log(error);

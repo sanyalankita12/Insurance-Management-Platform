@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api.js';
 
 function Claims() {
   const [claims, setClaims] = useState([]);
@@ -12,9 +12,7 @@ function Claims() {
 
   const fetchClaims = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/claims?search=${search}&page=${page}&limit=5`
-      );
+      const res = await api.get(`/claims?search=${search}&page=${page}&limit=5`);
       setClaims(res.data.data);
       setTotalPages(res.data.totalPages);
     } catch (error) {
@@ -29,11 +27,7 @@ function Claims() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/claims', {
-        policyId,
-        claimAmount,
-        reason,
-      });
+      await api.post('/claims', { policyId, claimAmount, reason });
       setPolicyId('');
       setClaimAmount('');
       setReason('');
@@ -47,7 +41,7 @@ function Claims() {
 
   const handleStatusChange = async (id, status) => {
     try {
-      await axios.put(`http://localhost:5000/api/claims/${id}/status`, { status });
+      await api.put(`/claims/${id}/status`, { status });
       fetchClaims();
     } catch (error) {
       console.log(error);
@@ -56,7 +50,7 @@ function Claims() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/claims/${id}`);
+      await api.delete(`/claims/${id}`);
       fetchClaims();
     } catch (error) {
       console.log(error);

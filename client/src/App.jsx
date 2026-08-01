@@ -9,6 +9,7 @@ import Claims from './pages/Claims.jsx';
 import Documents from './pages/Documents.jsx';
 import Reports from './pages/Reports.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import CustomerDashboard from './pages/CustomerDashboard.jsx';
 
 function App() {
     return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/claims" element={<Claims />} />
             <Route path="/documents" element={<Documents />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/my-dashboard" element={<CustomerDashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
     );

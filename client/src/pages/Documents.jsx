@@ -21,6 +21,12 @@ function Documents() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!customerId || !file) {
+      alert('Please select a customer ID and a file');
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append('customerId', customerId);
@@ -36,7 +42,8 @@ function Documents() {
       alert('Document uploaded successfully!');
     } catch (error) {
       console.log(error);
-      alert('Failed to upload document');
+      const message = error.response?.data?.error || 'Failed to upload document';
+      alert(message);
     }
   };
 

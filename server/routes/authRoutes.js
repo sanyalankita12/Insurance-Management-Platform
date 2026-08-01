@@ -11,49 +11,60 @@ const router = express.Router();
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 router.post('/register', async (req, res) => {
-    try {
-        const { name, email, password, role } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await prisma.user.create({
-            data: {
-                name,
-                email,
-                password: hashedPassword,
-                role,
-            },
-        });
-        res.status(201).json({ message: 'User registered successfully', user: newUser });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+  try {
+    const { name, email, password, role } = req.body;
+
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({ error: 'All fields are required' });
     }
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await prisma.user.create({
+      data: { name, email, password: hashedPassword, role },
+    });
+    res.status(201).json({ message: 'User registered successfully', user: newUser });
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'An account with this email already exists' });
+    }
+    res.status(500).json({ error: error.message });
+  }
 });
 
-router.post('/login',async(req,res)=>{
-    try{
-        const{email,password} = req.body;
-        const user = await prisma.user.findUnique({
-            where:{email},
-        });
-        if (!user){
-            return res.status(404).json({error:'User not found!'})
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-        }
-        const isMatch = await bcrypt.compare(password,user.password);
-        if (!isMatch){
-            return res.status(401).json({error:'Invalid credentials!'});
-        }
-        const token =jwt.sign(
-            {id:user.id, role:user.role},
-            process.env.JWT_SECRET,
-            { expiresIn:'1d'}
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found!' });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials!' });
+    }
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
     );
-    res.json({message:"Login Successful",token});
-    }
-    catch (error){
-        res.status(500).json({error:error.message});
-    }
-
+    res.json({ message: 'Login Successful', token });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 router.get('/me', verifyToken, async (req, res) => {
@@ -62,9 +73,7 @@ router.get('/me', verifyToken, async (req, res) => {
       where: { id: req.user.id },
       select: { id: true, name: true, email: true, role: true },
     });
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });

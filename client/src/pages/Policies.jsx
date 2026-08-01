@@ -32,6 +32,16 @@ function Policies() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!customerId || !policyType || !policyNumber || !premiumAmount || !startDate || !endDate) {
+      alert('Please fill all fields');
+      return;
+    }
+    if (new Date(endDate) <= new Date(startDate)) {
+      alert('End date must be after start date');
+      return;
+    }
+
     try {
       await api.post('/policies', {
         customerId,
@@ -53,7 +63,8 @@ function Policies() {
       alert('Policy added successfully!');
     } catch (error) {
       console.log(error);
-      alert('Failed to add policy');
+      const message = error.response?.data?.error || 'Failed to add policy';
+      alert(message);
     }
   };
 
@@ -72,6 +83,8 @@ function Policies() {
       fetchPolicies();
     } catch (error) {
       console.log(error);
+      const message = error.response?.data?.error || 'Failed to delete policy';
+      alert(message);
     }
   };
 

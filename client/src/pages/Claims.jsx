@@ -26,6 +26,12 @@ function Claims() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!policyId || !claimAmount || !reason) {
+      alert('Please fill all fields');
+      return;
+    }
+
     try {
       await api.post('/claims', { policyId, claimAmount, reason });
       setPolicyId('');
@@ -35,7 +41,8 @@ function Claims() {
       alert('Claim submitted successfully!');
     } catch (error) {
       console.log(error);
-      alert('Failed to submit claim');
+      const message = error.response?.data?.error || 'Failed to submit claim';
+      alert(message);
     }
   };
 

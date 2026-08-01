@@ -11,6 +11,19 @@ const prisma = new PrismaClient({ adapter });
 router.post('/', verifyToken, async (req, res) => {
   try {
     const { policyId, claimAmount, reason, status } = req.body;
+
+    if (!policyId || !claimAmount || !reason) {
+      return res.status(400).json({ error: 'Policy ID, claim amount, and reason are required' });
+    }
+    if (parseFloat(claimAmount) <= 0) {
+      return res.status(400).json({ error: 'Claim amount must be greater than 0' });
+    }
+
+    const policyExists = await prisma.policy.findUnique({ where: { id: parseInt(policyId) } });
+    if (!policyExists) {
+      return res.status(400).json({ error: 'No policy found with this Policy ID' });
+    }
+
     const newClaim = await prisma.claim.create({
       data: {
         policyId: parseInt(policyId),
@@ -55,6 +68,11 @@ router.put('/:id/status', verifyToken, authorizeRoles('admin', 'agent'), async (
   try {
     const { id } = req.params;
     const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
+
     const updatedClaim = await prisma.claim.update({
       where: { id: parseInt(id) },
       data: { status },

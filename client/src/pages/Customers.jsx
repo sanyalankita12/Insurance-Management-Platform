@@ -30,6 +30,12 @@ function Customers() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!name || !dob || !phone || !address || !email) {
+      alert('Please fill all fields');
+      return;
+    }
+
     try {
       await api.post('/customers', { name, dob, phone, address, email });
       setName('');
@@ -41,7 +47,8 @@ function Customers() {
       alert('Customer added successfully!');
     } catch (error) {
       console.log(error);
-      alert('Failed to add customer');
+      const message = error.response?.data?.error || 'Failed to add customer';
+      alert(message);
     }
   };
 
@@ -51,12 +58,14 @@ function Customers() {
       fetchCustomers();
     } catch (error) {
       console.log(error);
+      const message = error.response?.data?.error || 'Failed to delete customer';
+      alert(message);
     }
   };
 
   const handleViewPolicies = async (customer) => {
     try {
-      const res = await api.get('/policies');
+      const res = await api.get('/policies?limit=100');
       const customerPolicies = res.data.data.filter((p) => p.customerId === customer.id);
       setViewedPolicies(customerPolicies);
       setViewedCustomerName(customer.name);

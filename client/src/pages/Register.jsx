@@ -11,13 +11,24 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!name || !email || !password) {
+      alert('Please fill all fields');
+      return;
+    }
+    if (password.length < 6) {
+      alert('Password must be at least 6 characters');
+      return;
+    }
+
     try {
       await api.post('/auth/register', { name, email, password, role });
       alert('Registered successfully!');
       navigate('/login');
     } catch (error) {
       console.log(error);
-      alert('Registration failed');
+      const message = error.response?.data?.error || 'Registration failed';
+      alert(message);
     }
   };
 
@@ -30,21 +41,21 @@ function Register() {
         <h2 className="text-white text-2xl font-bold mb-6 text-center">Create Account</h2>
 
         <input
-          type="text"
+          type="text" required
           placeholder="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full bg-slate-700 text-white placeholder-gray-400 p-3 mb-3 rounded-lg border border-slate-600 focus:outline-none focus:border-blue-400"
         />
         <input
-          type="email"
+          type="email" required
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full bg-slate-700 text-white placeholder-gray-400 p-3 mb-3 rounded-lg border border-slate-600 focus:outline-none focus:border-blue-400"
         />
         <input
-          type="password"
+          type="password" required
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

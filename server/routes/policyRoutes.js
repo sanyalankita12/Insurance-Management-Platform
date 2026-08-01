@@ -11,6 +11,22 @@ const prisma = new PrismaClient({ adapter });
 router.post('/', verifyToken, authorizeRoles('admin', 'agent'), async (req, res) => {
   try {
     const { customerId, policyType, policyNumber, premiumAmount, startDate, endDate, status } = req.body;
+
+    if (!customerId || !policyType || !policyNumber || !premiumAmount || !startDate || !endDate || !status) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+    if (parseFloat(premiumAmount) <= 0) {
+      return res.status(400).json({ error: 'Premium amount must be greater than 0' });
+    }
+    if (new Date(endDate) <= new Date(startDate)) {
+      return res.status(400).json({ error: 'End date must be after start date' });
+    }
+
+    const customerExists = await prisma.customer.findUnique({ where: { id: parseInt(customerId) } });
+    if (!customerExists) {
+      return res.status(400).json({ error: 'No customer found with this Customer ID' });
+    }
+
     const newPolicy = await prisma.policy.create({
       data: {
         customerId: parseInt(customerId),
@@ -24,6 +40,9 @@ router.post('/', verifyToken, authorizeRoles('admin', 'agent'), async (req, res)
     });
     res.status(201).json(newPolicy);
   } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'A policy with this policy number already exists' });
+    }
     res.status(500).json({ error: error.message });
   }
 });
@@ -77,6 +96,14 @@ router.put('/:id', verifyToken, authorizeRoles('admin', 'agent'), async (req, re
   try {
     const { id } = req.params;
     const { policyType, policyNumber, premiumAmount, startDate, endDate, status } = req.body;
+
+    if (!policyType || !policyNumber || !premiumAmount || !startDate || !endDate || !status) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+    if (new Date(endDate) <= new Date(startDate)) {
+      return res.status(400).json({ error: 'End date must be after start date' });
+    }
+
     const updatedPolicy = await prisma.policy.update({
       where: { id: parseInt(id) },
       data: {

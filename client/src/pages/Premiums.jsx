@@ -23,6 +23,12 @@ function Premiums() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!policyId || !paymentDate || !amount) {
+      alert('Please fill all fields');
+      return;
+    }
+
     try {
       await api.post('/premiums', { policyId, paymentDate, amount, paymentStatus });
       setPolicyId('');
@@ -33,7 +39,8 @@ function Premiums() {
       alert('Premium payment recorded successfully!');
     } catch (error) {
       console.log(error);
-      alert('Failed to record payment');
+      const message = error.response?.data?.error || 'Failed to record payment';
+      alert(message);
     }
   };
 

@@ -51,14 +51,14 @@ function Login() {
           <h2 className="text-white text-2xl font-bold mb-6 text-center">Login</h2>
 
           <input
-            type="email"
+            type="email" required
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full bg-slate-700 text-white placeholder-gray-400 p-3 mb-3 rounded-lg border border-slate-600 focus:outline-none focus:border-blue-400"
           />
           <input
-            type="password"
+            type="password" required
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

@@ -8,14 +8,27 @@ const router = express.Router();
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 router.post('/', verifyToken, authorizeRoles('admin', 'agent'), async (req, res) => {
   try {
     const { name, dob, phone, address, email } = req.body;
+
+    if (!name || !dob || !phone || !address || !email) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+
     const newCustomer = await prisma.customer.create({
       data: { name, dob: new Date(dob), phone, address, email },
     });
     res.status(201).json(newCustomer);
   } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'A customer with this email already exists' });
+    }
     res.status(500).json({ error: error.message });
   }
 });
@@ -61,6 +74,14 @@ router.put('/:id', verifyToken, authorizeRoles('admin', 'agent'), async (req, re
   try {
     const { id } = req.params;
     const { name, dob, phone, address, email } = req.body;
+
+    if (!name || !dob || !phone || !address || !email) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+
     const updatedCustomer = await prisma.customer.update({
       where: { id: parseInt(id) },
       data: { name, dob: new Date(dob), phone, address, email },

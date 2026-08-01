@@ -11,6 +11,19 @@ const prisma = new PrismaClient({ adapter });
 router.post('/', verifyToken, async (req, res) => {
   try {
     const { policyId, paymentDate, amount, paymentStatus } = req.body;
+
+    if (!policyId || !paymentDate || !amount || !paymentStatus) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+    if (parseFloat(amount) <= 0) {
+      return res.status(400).json({ error: 'Amount must be greater than 0' });
+    }
+
+    const policyExists = await prisma.policy.findUnique({ where: { id: parseInt(policyId) } });
+    if (!policyExists) {
+      return res.status(400).json({ error: 'No policy found with this Policy ID' });
+    }
+
     const newPremium = await prisma.premium.create({
       data: {
         policyId: parseInt(policyId),
@@ -50,6 +63,11 @@ router.put('/:id', verifyToken, authorizeRoles('admin', 'agent'), async (req, re
   try {
     const { id } = req.params;
     const { paymentStatus } = req.body;
+
+    if (!paymentStatus) {
+      return res.status(400).json({ error: 'Payment status is required' });
+    }
+
     const updatedPremium = await prisma.premium.update({
       where: { id: parseInt(id) },
       data: { paymentStatus },

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import api from '../api.js';
+import Navbar from '../components/Navbar.jsx';
 
 function CustomerDashboard() {
   const navigate = useNavigate();

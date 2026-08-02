@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api.js';
+import Navbar from '../components/Navbar.jsx';
 
 function Premiums() {
   const [premiums, setPremiums] = useState([]);
@@ -57,6 +58,7 @@ function Premiums() {
 
   return (
     <div className="min-h-screen bg-slate-900 px-6 py-10">
+      <Navbar />
       <h1 className="text-white text-3xl font-bold mb-8 text-center">Premium Tracking</h1>
 
       <form

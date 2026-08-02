@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import Navbar from '../components/Navbar.jsx';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
@@ -56,6 +57,7 @@ function Reports() {
 
   return (
     <div className="min-h-screen bg-slate-900 px-6 py-10">
+      <Navbar />
       <h1 className="text-white text-3xl font-bold mb-8 text-center">Reports Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-10">

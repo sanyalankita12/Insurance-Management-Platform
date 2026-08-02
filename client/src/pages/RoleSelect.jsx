@@ -1,11 +1,13 @@
 import { User, Briefcase, Shield, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+
 function RoleSelect() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
+      
       <div className="w-full md:w-1/3 bg-slate-800 p-10">
         <h2 className="text-white text-2xl font-bold mb-6">Select Role</h2>
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import api from '../api.js';
 import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar.jsx';
 
 function Register() {
   const [name, setName] = useState('');
@@ -34,6 +35,7 @@ function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-900 px-4">
+      <Navbar />
       <form
         onSubmit={handleSubmit}
         className="bg-slate-800 p-8 rounded-lg shadow-lg w-full max-w-sm"

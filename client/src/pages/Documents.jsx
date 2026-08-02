@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api.js';
+import Navbar from '../components/Navbar.jsx';
 
 function Documents() {
   const [documents, setDocuments] = useState([]);
@@ -62,6 +63,7 @@ function Documents() {
 
   return (
     <div className="min-h-screen bg-slate-900 px-6 py-10">
+      <Navbar />
       <h1 className="text-white text-3xl font-bold mb-8 text-center">Document Management</h1>
 
       <form

@@ -4,6 +4,7 @@ import { Users, FileText, DollarSign, ClipboardList, FolderOpen, BarChart3, LogO
 import api from '../api.js';
 
 
+
 function Dashboard() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
@@ -51,6 +52,7 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-slate-900 px-6 py-10">
+     
       <div className="flex justify-between items-center max-w-5xl mx-auto mb-10">
         <div>
           <h1 className="text-white text-3xl font-bold">Dashboard</h1>

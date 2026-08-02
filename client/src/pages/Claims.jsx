@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api.js';
+import Navbar from '../components/Navbar.jsx';
 
 function Claims() {
   const [claims, setClaims] = useState([]);
@@ -72,6 +73,7 @@ function Claims() {
 
   return (
     <div className="min-h-screen bg-slate-900 px-6 py-10">
+      <Navbar />
       <h1 className="text-white text-3xl font-bold mb-8 text-center">Claim Management</h1>
 
       <form

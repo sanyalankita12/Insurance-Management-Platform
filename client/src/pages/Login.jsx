@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import api from '../api.js';
 import { useNavigate, useParams } from 'react-router-dom';
+import Navbar from '../components/Navbar.jsx';
 
 const greetings = {
   customer: {
@@ -40,6 +41,7 @@ function Login() {
 
   return (
     <div className="w-full bg-slate-900 flex flex-col items-center justify-center text-center px-10 py-10">
+      <Navbar />
       <h1 className="text-white text-4xl font-bold mb-6">{content.title}</h1>
       <p className="text-gray-300 text-lg mb-2">{content.subtitle}</p>
 
